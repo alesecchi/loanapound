@@ -1,7 +1,12 @@
 package loanapound.model;
 
 public interface Loan {
-	double getBorrowingRate();
-	long getDuration();
+	Long getLoanId();
+	void setLoanId(Long loanId);
+	Double getBorrowingRate();
+	void setBorrowingRate(Double borrowingRate);
+	Long getDuration();
+	void setDuration(Long duration);
 	String getProvider(); 
+	void setProvider(String provider);
 }
