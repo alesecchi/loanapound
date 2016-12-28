@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import loanapound.creditscore.CreditScoreSystemAdapter;
+import loanapound.model.Applicant;
 import loanapound.model.CreditScore;
 import loanapound.model.EvaluationCriteria;
 import loanapound.model.LoanApplication;
@@ -41,5 +42,19 @@ public class DecisionEngine {
 			}
 		}
 		return accepted;
+	}
+	
+	/**
+	 * Get one or multiple credit scores for the specified Applicant from previously loaded CreditScoreSystemAdapter
+	 * 
+	 * @param applicant applicant to be scored
+	 * @return list of scores from third party systems
+	 */
+	public List<CreditScore> getCreditScoresForApplicant(Applicant applicant){
+		List<CreditScore> creditScoreList = new ArrayList<>();
+		for(CreditScoreSystemAdapter creditScoreSystem : creditScoreSystemAdapterList){
+			creditScoreList.add(creditScoreSystem.getScoreForApplicant(applicant));
+		}
+		return creditScoreList;
 	}
 }
