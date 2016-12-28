@@ -11,7 +11,12 @@ import loanapound.model.CreditScoreSystem;
  */
 public class CreditScoreSystemDataAccess {
 
+	/**
+	 * Stub for getting the credit score systems from a database
+	 * @return
+	 */
 	public List<CreditScoreSystem> getAllCreditScoreSystems(){
+		//TODO implementation with database access
 		List<CreditScoreSystem> creditScoreSystemList = new ArrayList<>();
 		return creditScoreSystemList;
 	}
