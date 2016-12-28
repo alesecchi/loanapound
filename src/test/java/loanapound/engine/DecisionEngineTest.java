@@ -12,6 +12,7 @@ import loanapound.model.Applicant;
 import loanapound.model.BaseLoan;
 import loanapound.model.CreditScore;
 import loanapound.model.CreditScoreException;
+import loanapound.model.CreditScoreSystem;
 import loanapound.model.EvaluationCriteria;
 import loanapound.model.LoanApplication;
 import loanapound.model.mock.MockCreditScore;
@@ -19,7 +20,7 @@ import loanapound.model.mock.MockLoanApplication;
 
 public class DecisionEngineTest {
 	private DecisionEngine decisionEngine;
-	private CreditScoreSystemAdapter creditScoreSystem;
+	private CreditScoreSystem creditScoreSystem;
 	private LoanApplication loanApplication;
 	private EvaluationCriteria acceptedCriteria;
 	private EvaluationCriteria rejectedCriteria;
@@ -28,13 +29,14 @@ public class DecisionEngineTest {
 	public void setUp() throws Exception {
 		decisionEngine = new DecisionEngine();
 		loanApplication = new MockLoanApplication(1000);
-		creditScoreSystem = new CreditScoreSystemAdapter() {
+		creditScoreSystem = new CreditScoreSystem();
+		creditScoreSystem.setAdapter(new CreditScoreSystemAdapter() {
 			
 			@Override
 			public CreditScore getScoreForApplicant(Applicant applicant) {
 				return new MockCreditScore();
 			}
-		};
+		});
 		acceptedCriteria = new EvaluationCriteria() {
 			
 			@Override
@@ -110,7 +112,8 @@ public class DecisionEngineTest {
 	@Test
 	public void testGetCreditScoresForApplicantMultipleScores(){
 		decisionEngine.addCreditScoreSystem(creditScoreSystem);
-		decisionEngine.addCreditScoreSystem(new CreditScoreSystemAdapter() {
+		CreditScoreSystem secondCreditScoreSystem = new CreditScoreSystem();
+		secondCreditScoreSystem.setAdapter(new CreditScoreSystemAdapter() {
 			
 			@Override
 			public CreditScore getScoreForApplicant(Applicant applicant) {
@@ -122,6 +125,7 @@ public class DecisionEngineTest {
 				return creditScore;
 			}
 		});
+		decisionEngine.addCreditScoreSystem(secondCreditScoreSystem);
 		List<CreditScore> creditScoreList = decisionEngine.getCreditScoresForApplicant(new Applicant());
 		assertEquals(2, creditScoreList.size());
 		assertEquals(500, creditScoreList.get(0).getScore());

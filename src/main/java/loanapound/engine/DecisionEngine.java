@@ -6,19 +6,23 @@ import java.util.List;
 import loanapound.creditscore.CreditScoreSystemAdapter;
 import loanapound.model.Applicant;
 import loanapound.model.CreditScore;
+import loanapound.model.CreditScoreSystem;
 import loanapound.model.EvaluationCriteria;
 import loanapound.model.LoanApplication;
+import loanapound.service.CreditCheckService;
 
 /**
  * Engine for the evaluation of loan applications according to third party scoring systems and a set of evaluation criteria
  */
 public class DecisionEngine {
+	
+	private final CreditCheckService creditCheckService = new CreditCheckService(); 
 
-	private List<CreditScoreSystemAdapter> creditScoreSystemAdapterList = new ArrayList<>();
+	private List<CreditScoreSystem> creditScoreSystemList = new ArrayList<>();
 	private List<EvaluationCriteria> evaluationCriteriaList = new ArrayList<>();
 	
-	public void addCreditScoreSystem(CreditScoreSystemAdapter creditScoreSystemAdapter){
-		creditScoreSystemAdapterList.add(creditScoreSystemAdapter);
+	public void addCreditScoreSystem(CreditScoreSystem creditScoreSystemAdapter){
+		creditScoreSystemList.add(creditScoreSystemAdapter);
 	}
 	
 	public void addEvaluationCriteria(EvaluationCriteria evaluationCriteria){
@@ -34,9 +38,9 @@ public class DecisionEngine {
 	 * 			or there are no score systems or criteria loaded into the engine
 	 */
 	public boolean evaluateLoanApplication(LoanApplication loanApplication){
-		boolean accepted = !creditScoreSystemAdapterList.isEmpty() && !evaluationCriteriaList.isEmpty();
-		for(CreditScoreSystemAdapter creditScoreSystem : creditScoreSystemAdapterList){
-			CreditScore creditScore = creditScoreSystem.getScoreForApplicant(loanApplication.getApplicant());
+		boolean accepted = !creditScoreSystemList.isEmpty() && !evaluationCriteriaList.isEmpty();
+		List<CreditScore> creditScoreList = creditCheckService.getCreditScoresForApplicant(loanApplication.getApplicant(), creditScoreSystemList);
+		for(CreditScore creditScore : creditScoreList){
 			for(EvaluationCriteria evaluationCriteria : evaluationCriteriaList){
 				accepted = accepted && evaluationCriteria.isAccepted(creditScore);
 			}
@@ -51,10 +55,6 @@ public class DecisionEngine {
 	 * @return list of scores from third party systems
 	 */
 	public List<CreditScore> getCreditScoresForApplicant(Applicant applicant){
-		List<CreditScore> creditScoreList = new ArrayList<>();
-		for(CreditScoreSystemAdapter creditScoreSystem : creditScoreSystemAdapterList){
-			creditScoreList.add(creditScoreSystem.getScoreForApplicant(applicant));
-		}
-		return creditScoreList;
+		return creditCheckService.getCreditScoresForApplicant(applicant, creditScoreSystemList);
 	}
 }
